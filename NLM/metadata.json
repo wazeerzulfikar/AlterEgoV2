@@ -1,0 +1,310 @@
+{
+    "subjects": {
+        "ASD001":
+        {
+            "tasks": [
+                    {
+                        "name": "imitation",
+                        "emg": [
+                            "2000_imit1_1_2021_10_20_11_57_19.txt",
+                            "2000_imit2_1_2021_10_20_11_58_58.txt",
+                            "2000_imit3_1_2021_10_20_12_00_02.txt"
+                        ],
+                        "textgrids":[
+                            "imitation_1.textgrid",
+                            "imitation_2.textgrid",
+                            "imitation_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "naming",
+                        "emg": [
+                            "2000_name1_1_2021_10_20_12_01_43.txt",
+                            "2000_name2_1_2021_10_20_12_03_27.txt",
+                            "2000_name3_1_2021_10_20_12_04_58.txt"
+                        ],
+                        "textgrids":[
+                            "naming_1.textgrid",
+                            "naming_2.textgrid",
+                            "naming_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "reading",
+                        "emg": [
+                            "2000_read1_1_2021_10_20_12_06_51.txt",
+                            "2000_read2_1_2021_10_20_12_09_21.txt",
+                            "2000_read3_1_2021_10_20_12_11_32.txt"
+                        ],
+                        "textgrids":[
+                            "reading_1.textgrid",
+                            "reading_2.textgrid",
+                            "reading_3.textgrid"
+                        ]
+                    }
+                ],
+            "calibration": {
+                "beep_text_grid_file_mac": "2000_1.textgrid",
+                "beep_text_grid_file_surface": "ddk_1.textgrid",
+                "experiment_start_times_surface": "data_times.txt",
+                "meta_file": "meta.txt",
+                "audio_name": "2000_1"
+            }
+        },
+
+        "ASD002":
+        {
+            "tasks": [
+                    {
+                        "name": "imitation",
+                        "emg": [
+                            "100_imit1_1_2021_10_06_13_42_49.txt",
+                            "100_imit2_1_2021_10_06_13_44_50.txt",
+                            "100_imit3_1_2021_10_06_13_45_52.txt"
+                        ],
+                        "textgrids":[
+                            "imitation_1.textgrid",
+                            "imitation_2.textgrid",
+                            "imitation_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "naming",
+                        "emg": [
+                            "100_name1_1_2021_10_06_13_48_20.txt",
+                            "100_name2_1_2021_10_06_13_50_08.txt",
+                            "100_name3_1_2021_10_06_13_51_19.txt"
+                        ],
+                        "textgrids":[
+                            "naming_1.textgrid",
+                            "naming_2.textgrid",
+                            "naming_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "reading",
+                        "emg": [
+                            "100_read1111_1_2021_10_06_14_02_05.txt"
+                        ],
+                        "textgrids":[
+                            "reading.textgrid"
+                        ]
+                    }
+                ],
+            "calibration": {
+                "beep_text_grid_file_mac": "101_1.textgrid",
+                "beep_text_grid_file_surface": "ddk_1.textgrid",
+                "experiment_start_times_surface": "data_times_10_06.txt",
+                "meta_file": "meta.txt",
+                "audio_name": "101_1"
+            }
+        },
+
+        "ASD005":
+        {
+            "tasks": [
+                    {
+                        "name": "imitation",
+                        "emg": [
+                            "1000_imitation1_1_2022_06_01_13_02_20.txt",
+                            "1000_imitation2_1_2022_06_01_13_04_41.txt"
+                        ],
+                        "textgrids":[
+                            "imitation_1.textgrid",
+                            "imitation_2.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "naming",
+                        "emg": [
+                            "1000_naming1_1_2022_06_01_13_06_38.txt",
+                            "1000_naming2_1_2022_06_01_13_08_35.txt",
+                            "1000_naming3_1_2022_06_01_13_10_12.txt"
+                        ],
+                        "textgrids":[
+                            "naming_1.textgrid",
+                            "naming_2.textgrid",
+                            "naming_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "reading",
+                        "emg": [
+                            "1000_reading1_1_2022_06_01_13_11_53.txt",
+                            "1000_reading2_1_2022_06_01_13_15_44.txt",
+                            "1000_reading3_1_2022_06_01_13_19_27.txt"
+                        ],
+                        "textgrids":[
+                            "reading_1.textgrid",
+                            "reading_2.textgrid",
+                            "reading_3.textgrid"
+                        ]
+                    }
+                ],
+            "calibration": {
+                "beep_text_grid_file_mac": "calibration_tone.textgrid",
+                "beep_text_grid_file_surface": "ddk_1.textgrid",
+                "experiment_start_times_surface": "data_times.txt",
+                "meta_file": "meta.txt",
+                "audio_name": "101_1"
+            }
+        },
+
+        "ASD006":
+        {
+            "tasks": [
+                    {
+                        "name": "imitation",
+                        "emg": [
+                            "006_imit1_1_2022_06_30_14_25_49.txt",
+                            "006_imit2_1_2022_06_30_14_29_02.txt",
+                            "006_imit3_1_2022_06_30_14_34_12.txt"
+                        ],
+                        "textgrids":[
+                            "imitation_1.textgrid",
+                            "imitation_2.textgrid",
+                            "imitation_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "naming",
+                        "emg": [
+                            "006_naming1_1_2022_06_30_14_36_25.txt",
+                            "006_naming2_1_2022_06_30_14_37_52.txt",
+                            "006_naming3_1_2022_06_30_14_38_59.txt"
+                        ],
+                        "textgrids":[
+                            "naming_1.textgrid",
+                            "naming_2.textgrid",
+                            "naming_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "reading",
+                        "emg": [
+                            "006_reading1_1_2022_06_30_14_40_01.txt",
+                            "006_reading2_1_2022_06_30_14_42_34.txt",
+                            "006_reading3_1_2022_06_30_14_44_28.txt"
+                        ],
+                        "textgrids":[
+                            "reading_1.textgrid",
+                            "reading_2.textgrid",
+                            "reading_3.textgrid"
+                        ]
+                    }
+                ],
+            "calibration": {
+                "beep_text_grid_file_mac": "006_1.textgrid",
+                "beep_text_grid_file_surface": "ddk_1.textgrid",
+                "experiment_start_times_surface": "data_times.txt",
+                "meta_file": "meta.txt",
+                "audio_name": "006_1"
+            }
+        },
+
+        "CON001":
+        {
+            "tasks": [
+                    {
+                        "name": "imitation",
+                        "emg": [
+                            "8000_imitation1_1_2022_05_24_17_03_06.txt",
+                            "8000_imitation2_1_2022_05_24_17_04_56.txt",
+                            "8000_imitation3_1_2022_05_24_17_06_19.txt"
+                        ],
+                        "textgrids":[
+                            "imitation_1.textgrid",
+                            "imitation_2.textgrid",
+                            "imitation_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "naming",
+                        "emg": [
+                            "8000_naming1_1_2022_05_24_17_07_55.txt",
+                            "8000_naming2_1_2022_05_24_17_09_37.txt",
+                            "8000_naming3_1_2022_05_24_17_11_12.txt"
+                        ],
+                        "textgrids":[
+                            "naming_1.textgrid",
+                            "naming_2.textgrid",
+                            "naming_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "reading",
+                        "emg": [
+                            "8000_Reading1_1_2022_05_24_17_12_37.txt",
+                            "8000_Reading2_1_2022_05_24_17_14_09.txt",
+                            "8000_Reading3_1_2022_05_24_17_15_25.txt"
+                        ],
+                        "textgrids":[
+                            "reading_1.textgrid",
+                            "reading_2.textgrid",
+                            "reading_3.textgrid"
+                        ]
+                    }
+                ],
+            "calibration": {
+                "beep_text_grid_file_mac": "8000_1.textgrid",
+                "beep_text_grid_file_surface": "ddk_1.textgrid",
+                "experiment_start_times_surface": "data_times.txt",
+                "meta_file": "meta.txt",
+                "audio_name": "8000_1"
+            }
+        },
+
+        "CON003":
+        {
+            "tasks": [
+                    {
+                        "name": "imitation",
+                        "emg": [
+                            "1500_imitation1_1_2022_06_24_13_02_28.txt",
+                            "1500_imitation2_1_2022_06_24_13_03_49.txt",
+                            "1500_imitation3_1_2022_06_24_13_05_10.txt"
+                        ],
+                        "textgrids":[
+                            "imitation_1.textgrid",
+                            "imitation_2.textgrid",
+                            "imitation_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "naming",
+                        "emg": [
+                            "1500_naming1_1_2022_06_24_13_06_33.txt",
+                            "1500_naming2_1_2022_06_24_13_08_03.txt",
+                            "1500_naming3_1_2022_06_24_13_09_36.txt"
+                        ],
+                        "textgrids":[
+                            "naming_1.textgrid",
+                            "naming_2.textgrid",
+                            "naming_3.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "reading",
+                        "emg": [
+                            "1500_reading1_1_2022_06_24_13_11_03.txt",
+                            "1500_reading2_1_2022_06_24_13_13_47.txt",
+                            "1500_reading3_1_2022_06_24_13_15_51.txt"
+                        ],
+                        "textgrids":[
+                            "reading_1.textgrid",
+                            "reading_2.textgrid",
+                            "reading_3.textgrid"
+                        ]
+                    }
+                ],
+            "calibration": {
+                "beep_text_grid_file_mac": "1500_1.textgrid",
+                "beep_text_grid_file_surface": "ddk_1.textgrid",
+                "experiment_start_times_surface": "data_times.txt",
+                "meta_file": "meta.txt",
+                "audio_name": "1500_1"
+            }
+        }
+    }
+
+}

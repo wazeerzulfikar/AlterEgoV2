@@ -5,7 +5,7 @@ import os
 
 # local packages
 import data_collection
-import transform
+import transforms
 
 # channels = [1, 3, 4, 6] # Must be same as trained model if test_model==True
 #channels = [1, 3, 4] # DO NOT CHANGE
@@ -14,9 +14,9 @@ channels = range(0,8)
 def transform_data(sequence_groups, sample_rate=250):
     #### Apply DC offset and drift correction
     drift_low_freq = 0.5 #0.5
-    sequence_groups = transform.subtract_initial(sequence_groups)
-    sequence_groups = transform.highpass_filter(sequence_groups, drift_low_freq, sample_rate)
-    sequence_groups = transform.subtract_mean(sequence_groups)
+    sequence_groups = transforms.subtract_initial(sequence_groups)
+    sequence_groups = transforms.highpass_filter(sequence_groups, drift_low_freq, sample_rate)
+    sequence_groups = transforms.subtract_mean(sequence_groups)
 
     #### Apply notch filters at multiples of notch_freq
     notch_freq = 60
@@ -24,10 +24,10 @@ def transform_data(sequence_groups, sample_rate=250):
     freqs = [int(round(x * notch_freq)) for x in np.arange(1, sample_rate/(2. * notch_freq))]
     for _ in range(num_times):
         for f in reversed(freqs):
-            sequence_groups = transform.notch_filter(sequence_groups, f, sample_rate)
+            sequence_groups = transforms.notch_filter(sequence_groups, f, sample_rate)
 
     #### Apply standard deviation normalization
-    #sequence_groups = transform.normalize_std(sequence_groups)
+    #sequence_groups = transforms.normalize_std(sequence_groups)
 
     def normalize_kernel(kernel, subtract_mean=False):
         if subtract_mean:
@@ -42,26 +42,26 @@ def transform_data(sequence_groups, sample_rate=250):
     ricker_width = 35 * sample_rate // 250
     ricker_sigma = 4.0 * sample_rate / 250
     ricker_kernel = normalize_kernel(ricker_wavelet(ricker_width, ricker_sigma))
-    ricker_convolved = transform.correlate(sequence_groups, ricker_kernel)
+    ricker_convolved = transforms.correlate(sequence_groups, ricker_kernel)
     ricker_subtraction_multiplier = 2.0
     sequence_groups = sequence_groups - ricker_subtraction_multiplier * ricker_convolved
 
     #### Apply sine wavelet kernel
 #    period = int(sample_rate)
 #    sin_kernel = normalize_kernel(np.sin(np.arange(period)/float(period) * 1*np.pi), subtract_mean=True)
-#    sequence_groups = transform.correlate(sequence_groups, sin_kernel)
+#    sequence_groups = transforms.correlate(sequence_groups, sin_kernel)
 
     low_freq = 0.5 #0.5
     high_freq = 8 #8
     order = 1
 
     #### Apply soft bandpassing
-    sequence_groups = transform.bandpass_filter(sequence_groups, low_freq, high_freq, sample_rate, order=order)
+    sequence_groups = transforms.bandpass_filter(sequence_groups, low_freq, high_freq, sample_rate, order=order)
 
     #### Apply hard bandpassing
-#    sequence_groups = transform.fft(sequence_groups)
-#    sequence_groups = transform.fft_frequency_cutoff(sequence_groups, low_freq, high_freq, sample_rate)
-#    sequence_groups = np.real(transform.ifft(sequence_groups))
+#    sequence_groups = transforms.fft(sequence_groups)
+#    sequence_groups = transforms.fft_frequency_cutoff(sequence_groups, low_freq, high_freq, sample_rate)
+#    sequence_groups = np.real(transforms.ifft(sequence_groups))
     sequence_groups = np.ones_like(sequence_groups)
 
     return sequence_groups
@@ -71,42 +71,7 @@ def transform_data(sequence_groups, sample_rate=250):
 
 # word_map = ['baby', 'book', 'cup', 'dog', 'ten', 'pig', 'table', 'apple', 'paper', 'potato', 'chocolate', 'hi', 'bye', 'bottle', 'ball', 'kitten', 'duck', 'girl', 'Finished']
 word_map = ['baby', 'book', 'cup', 'dog', 'ten', 'pig', 'table', 'apple', 'paper', 'potato', 'chocolate', 'hi', 'bye', 'bottle', 'ball', 'kitten', 'duck', 'girl']
-'''
-Sara, Paul, George
-1) [6, 6, 2, 5, 5, 3, 6, 3, 4, 5, 3, 2, 8, 3, 7, 0, 2, 4, 3, 8, 3, 2, 3, 1, 5]
-2) [8, 6, 9, 2, 6, 0, 0, 0, 8, 1, 7, 8, 6, 3, 4, 1, 1, 2, 1, 4, 5, 7, 0, 8, 5]
-3) [1, 9, 0, 4, 8, 0, 1, 5, 3, 2, 0, 1, 6, 7, 9, 5, 2, 4, 4, 9, 9, 9, 9, 7, 8]
-4) [9, 0, 4, 2, 7, 5, 7, 1, 6, 9, 5, 8, 2, 8, 0, 7, 6, 1, 3, 9, 6, 7, 4, 7, 4]
-5) [13, 11, 10, 11, 12, 12, 13, 11, 12, 14, 13, 10, 11, 14, 13, 12, 14, 10, 13, 14, 10, 10, 12, 11, 12]
-6) [10, 13, 13, 13, 10, 10, 12, 10, 14, 11, 12, 12, 14, 11, 13, 11, 11, 14, 14, 14, 11, 13, 10, 12, 14]
 
-February Data Collection for NeurIPS
-1) [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-2) [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-3) [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
-4) [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
-5) [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
-6) [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
-7) [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6]
-8) [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
-9) [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8]
-10) [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
-11) [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
-12) [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
-13) [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
-14) [13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13]
-15) [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14]
-16) [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]
-17) [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16]
-18) [17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17]
-19) [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18]
-20) [19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19]
-21) [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
-22) [21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21]
-23) [22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22]
-24) [23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23]
-25) [24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24]
-'''
 
 labels = np.arange(len(word_map))
 np.random.shuffle(labels)
@@ -161,4 +126,4 @@ def start_record(args):
                       on_data, channels=channels, transform_fn=transform_data,
                       history_size=1500, shown_size=1200, override_step=40,
                       subject_id=args.subject_id, task_name=args.task, run_number=args.run,
-                      plot=False)#35
+                      plot=True)#35

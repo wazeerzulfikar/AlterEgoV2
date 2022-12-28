@@ -17,7 +17,7 @@ def start_record(args):
 	seconds = args.duration
 
 	print('Started recording for a duration of {} seconds'.format(args.duration))
-	myrecording = sd.rec(int(seconds*fs), samplerate=fs, channels=2)
+	myrecording = sd.rec(int(seconds*fs), samplerate=fs, channels=1)
 	start_timestamp = datetime.datetime.now()
 	sd.wait()
 	write(os.path.join(args.data_folder, '{}_{}.wav'.format(args.subject_id, args.run)), fs, myrecording)

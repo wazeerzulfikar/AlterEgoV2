@@ -10,7 +10,7 @@ from scipy.ndimage.filters import gaussian_filter1d
 import datetime
 import serial
 
-import transform
+import transforms
 
 ADS1299_Vref = 4.5  #reference voltage for ADC in ADS1299.  set by its hardware
 ADS1299_gain = 24.0  #assumed gain setting for ADS1299.  set by its Arduino code
@@ -30,7 +30,7 @@ sample_count = 0
 recorded_count = 0
     
 def start(device_name, callback_fn, channels=range(0, 8), history_size=history_size, shown_size=shown_size,
-          transform_fn=transform.default_transform, plot=True, return_transformed=True,
+          transform_fn=transforms.default_transform, plot=True, return_transformed=True,
           override_step=None, subject_id='default', task_name='default', run_number=1, **kwargs):
     history = [[0.0] * 8 for i in range(history_size)]
     trigger_history = [0.0] * history_size
@@ -41,6 +41,7 @@ def start(device_name, callback_fn, channels=range(0, 8), history_size=history_s
 
     fig = plt.figure(0, figsize=(12, 8))
     if plot:
+        print("start0")
         colors = ['gray', 'purple', 'blue', 'green', 'yellow', 'orange', 'red', 'brown']
         ax = fig.gca()
         trigger_line = ax.plot([-shown_size, 0], [0, 0], '--', lw=1.0, c='black', alpha=0.5)[0]
@@ -50,8 +51,8 @@ def start(device_name, callback_fn, channels=range(0, 8), history_size=history_s
         ax.set_title('Serial Data')
         ax.set_xlabel('Sample')
 #        ax.axis([-shown_size, 0, -187500/8/128, 187500/8/128])
-#        if kwargs.get('apply_subtract_mean', transform.apply_subtract_mean) \
-#            or kwargs.get('apply_bandpass_filter', transform.apply_bandpass_filter):
+#        if kwargs.get('apply_subtract_mean', transforms.apply_subtract_mean) \
+#            or kwargs.get('apply_bandpass_filter', transforms.apply_bandpass_filter):
 #            ax.axis([-shown_size, 0, -187500/8/128, 187500/8/128])
 #        else:
 ##            ax.axis([-history_size, 0, 0, 187500*2])
@@ -59,6 +60,8 @@ def start(device_name, callback_fn, channels=range(0, 8), history_size=history_s
 
 
         ax.axis([-shown_size, 0, -1.0 * len(channels), 1])
+
+        print("middle0")
     
         infos = [ax.text(0.005, 0.975 - 0.03*i, ' Channel ' + str(i+1) + ' ',
                          color=('black' if i in channels else 'white'),
@@ -72,6 +75,7 @@ def start(device_name, callback_fn, channels=range(0, 8), history_size=history_s
         plt.subplots_adjust(left=0.04, right=0.96, bottom=0.09, top=0.92)
 
         history_x = range(-shown_size, 0)
+        print("end0")
 
 
     with serial.Serial(device_name, 115200, timeout=1, parity=serial.PARITY_NONE,
@@ -158,15 +162,18 @@ def start(device_name, callback_fn, channels=range(0, 8), history_size=history_s
         
             transformed = transform_fn(data, **kwargs)
             if plot:
+                print("start1")
                 max_vals = [5 * np.std(transformed[-shown_size:,i], axis=0) for i in range(8)]
 #                max_val = 1.5 * np.max(np.abs(transformed[-shown_size:]))
                 count = -1
                 for i in channels:
                     count += 1
                     lines[i].set_data(history_x, transformed[-shown_size:,i] / max_vals[i] - 1.0 * count)
+                print("middle1")
                 trigger_line.set_data(history_x,
                                       np.array(trigger_history[-shown_size:]) * (len(channels)+3) - len(channels)-1)
-            
+                print("end1")
+
             callback_fn(transformed if return_transformed else data,
                         np.array(trigger_history), np.array(index_history), sample_count, step, recorded_count)
 
@@ -174,11 +181,11 @@ def start(device_name, callback_fn, channels=range(0, 8), history_size=history_s
 
             return list(lines[channels]) + [trigger_line] if plot else []
 
-        line_ani = animation.FuncAnimation(fig, update, interval=0, blit=True)
+        line_ani = animation.FuncAnimation(fig, update, interval=20, blit=True)
 
-        i = 0
-        while True:
-            update(i)
-            i+=1
+        # i = 0
+        # while True:
+        #     update(i)
+        #     i+=1
         if plot: plt.show()
 

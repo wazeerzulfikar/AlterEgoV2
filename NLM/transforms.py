@@ -129,20 +129,23 @@ def numpify(data, modify=False):
 
 # Subtract mean from signals
 def subtract_mean(data, modify=False):
-    return apply_recursively(data, lambda seq: seq - np.mean(seq, axis=0), modify)
+    # return apply_recursively(data, lambda seq: seq - np.mean(seq, axis=0), modify)
+    return data - np.mean(data, axis=1)
 
 # Subtract initial from signals
 def subtract_initial(data, modify=False):
-    return apply_recursively(data, lambda seq: seq - seq[0,:], modify)
+    # return apply_recursively(data, lambda seq: seq - seq[0,:], modify)
+    initial_data = data[:, 0:1] # (channel, values)
+    return data - initial_data
 
 # Normalize by dividing by standard deviation
 def normalize_std(data, modify=False):
-    def nan_to_zeros(s):
-        s[np.where(np.isnan(s))] = 0.0
-        return s
-    data = apply_recursively(data, lambda seq: seq / np.std(seq, axis=0), modify)
-    data = apply_recursively(data, nan_to_zeros, modify)
-    return data
+    # def nan_to_zeros(s):
+    #     s[np.where(np.isnan(s))] = 0.0
+    #     return s
+    # data = apply_recursively(data, lambda seq: seq / np.std(seq, axis=0), modify)
+    # data = apply_recursively(data, nan_to_zeros, modify)
+    return data / np.std(data, axis=0)
 
 # Apply bandpass filter
 def _bandpass_filter_channel(x, low, high, fs, order):
@@ -153,9 +156,13 @@ def _bandpass_filter_channel(x, low, high, fs, order):
     y = lfilter(b, a, x)
     return y
 def bandpass_filter(data, low, high, fs, order=1, modify=False):
-    return apply_recursively(data, lambda seq:
-                             channel_specific(seq, _bandpass_filter_channel, modify, low, high, fs, order), modify)
-
+    # return apply_recursively(data, lambda seq:
+    #                          channel_specific(seq, _bandpass_filter_channel, modify, low, high, fs, order), modify)
+    filtered_data = []
+    for channel in data:
+        filtered_data.append(_bandpass_filter_channel(channel, low, high, fs, order))
+    return filtered_data
+    
 # Apply highpass filter
 def _highpass_filter_channel(x, low, fs, order):
     nyq = 0.5 * fs
@@ -164,8 +171,13 @@ def _highpass_filter_channel(x, low, fs, order):
     y = lfilter(b, a, x)
     return y
 def highpass_filter(data, low, fs, order=1, modify=False):
-    return apply_recursively(data, lambda seq:
-                             channel_specific(seq, _highpass_filter_channel, modify, low, fs, order), modify)
+    # return apply_recursively(data, lambda seq:
+    #                          channel_specific(seq, _highpass_filter_channel, modify, low, fs, order), modify)
+
+    filtered_data = []
+    for channel in data:
+        filtered_data.append(_highpass_filter_channel(channel, low, fs, order))
+    return np.array(filtered_data)
 
 # Apply lowpass filter
 def _lowpass_filter_channel(x, high, fs, order):
@@ -175,8 +187,13 @@ def _lowpass_filter_channel(x, high, fs, order):
     y = lfilter(b, a, x)
     return y
 def lowpass_filter(data, high, fs, order=1, modify=False):
-    return apply_recursively(data, lambda seq:
-                             channel_specific(seq, _lowpass_filter_channel, modify, high, fs, order), modify)
+    # return apply_recursively(data, lambda seq:
+    #                          channel_specific(seq, _lowpass_filter_channel, modify, high, fs, order), modify)
+
+    filtered_data = []
+    for channel in data:
+        filtered_data.append(_lowpass_filter_channel(channel, high, fs, order))
+    return np.array(filtered_data)
 
 # Apply notch filter
 def _notch_filter_channel(x, freq, fs, Q=30):
@@ -185,13 +202,21 @@ def _notch_filter_channel(x, freq, fs, Q=30):
     y = lfilter(b, a, x)
     return y
 def notch_filter(data, freq, fs, modify=False):
-    return apply_recursively(data, lambda seq:
-                             channel_specific(seq, _notch_filter_channel, modify, freq, fs), modify)
+    # return apply_recursively(data, lambda seq:
+    #                          channel_specific(seq, _notch_filter_channel, modify, freq, fs), modify)
+    filtered_data = []
+    for channel in data:
+        filtered_data.append(_notch_filter_channel(channel, freq, fs))
+    return np.array(filtered_data)
 
 # Apply correlatation/convolution
 def correlate(data, kernel, mode='same', modify=False):
-    return apply_recursively(data, lambda seq:
-                             channel_specific(seq, _convolve, modify, kernel[::-1], mode=mode), modify)
+    # return apply_recursively(data, lambda seq:
+    #                          channel_specific(seq, _convolve, modify, kernel[::-1], mode=mode), modify)
+    filtered_data = []
+    for channel in data:
+        filtered_data.append(_convolve(channel, kernel[::-1], mode=mode))
+    return np.array(filtered_data)
 
 # Compress/expand sequences to average length
 def stretch_compress(data, length, modify=False):
