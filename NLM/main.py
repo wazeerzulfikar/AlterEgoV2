@@ -4,6 +4,7 @@ import record_serial
 import record_beep_audio_duration
 import data_extraction
 import visualization
+import streamer
 
 parser = argparse.ArgumentParser()
 
@@ -12,6 +13,7 @@ parser_a = subparsers.add_parser('record_data', help='record data from the openB
 parser_b = subparsers.add_parser('record_beep', help='record the calibration beep for a fixed duration (15s)')
 parser_c = subparsers.add_parser('extract_data', help='extract the data collected into labelled csv')
 parser_d = subparsers.add_parser('visualize', help='visualize the data collected')
+parser_e = subparsers.add_parser('stream', help='stream the data collected')
 
 
 parser_a.add_argument('--subject_id', type=str, required=True)
@@ -34,6 +36,11 @@ parser_d.add_argument('--analysis_folder', type=str, required=True)
 parser_d.add_argument('--subject_id', type=str)
 parser_d.add_argument('--surrounding', type=float, default=1, help="Surrounding phases of production in seconds")
 
+parser_e.add_argument('--metadata', type=str, required=True)
+parser_e.add_argument('--data_folder', type=str, required=True)
+parser_e.add_argument('--subject_id', type=str)
+parser_e.add_argument('--task', type=str)
+
 args = parser.parse_args()
 
 if args.command == 'record_data':
@@ -44,3 +51,5 @@ if args.command == 'extract_data':
 	data_extraction.extract_data(args)
 if args.command == 'visualize':
 	visualization.visualize(args)
+if args.command == 'stream':
+	streamer.extract_data(args)
