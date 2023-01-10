@@ -52,4 +52,4 @@ if args.command == 'extract_data':
 if args.command == 'visualize':
 	visualization.visualize(args)
 if args.command == 'stream':
-	streamer.extract_data(args)
+	streamer.stream(args)

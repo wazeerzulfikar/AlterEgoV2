@@ -11,16 +11,24 @@ import csv
 from tqdm import tqdm
 import json
 from PIL import Image
+import streamlit as st
+import pandas as pd
+import playsound
+from scipy.io import wavfile
 
 import transforms
 
 opj = os.path.join
 
-def transform_data(sequence_groups, sample_rate=250):
+def transform_data(sequence_groups, sample_rate=250, initial_values=None):
 
     #### Apply DC offset and drift correction
     drift_low_freq = 0.5 #0.5
-    sequence_groups = transforms.subtract_initial(sequence_groups)
+    if initial_values is None:
+        sequence_groups = transforms.subtract_initial(sequence_groups)
+    else:
+        sequence_groups = sequence_groups - initial_values
+
     sequence_groups = transforms.highpass_filter(sequence_groups, drift_low_freq, sample_rate)
     # sequence_groups = transforms.subtract_mean(sequence_groups)
 
@@ -188,47 +196,94 @@ def stream_data(subject_id, task, emg_recordings_filename, annotation_textgrid, 
     with open(emg_recordings_filename, 'r') as f:
 	    emg_recording = f.read().split('\n')
 
-    electrode_placement_img = Image.open('electrode_placement.png')
+    electrode_placement_img = Image.open('electrode_placement.png').resize((200, 100))
     colors = ['gray', 'purple', 'blue', 'green', 'yellow', 'orange', 'red', 'brown']
 
-    time_window = 100
+    time_window = 125
+    steps = 25
     sample_rate = 250
 
-    # stream data
+    # # stream data
     plt.ion()
 
     start_time = datetime.strptime(emg_recording[7].split(', ')[-1],  '%H:%M:%S.%f')
 
-    for i in range(6+time_window, len(emg_recording)-time_window, time_window//2):
-        time_stamps = [emg_recording[k].split(', ')[-1] for k in range(i-time_window, i+time_window)]
-        time_stamps =[datetime.strptime(time_stamp, '%H:%M:%S.%f') for time_stamp in time_stamps]
-        time_stamps = [(time_stamp-start_time).total_seconds() for time_stamp in time_stamps]
-        channel_data = [emg_recording[k].split(',')[1:9] for k in range(i-time_window, i+time_window)]
-        channel_data = np.array(channel_data).T.astype(np.float32)
-        channel_data = transform_data(channel_data, sample_rate)
+    st.image(electrode_placement_img, caption='Electrode Reference')
+
+    fig, ax = plt.subplots(2, figsize=(8, 6))
+    # fig.figimage(electrode_placement_img, 900, 700)
+
+    audio_file = '/Users/wazeer/mas/nlm/data/ASD001/audio/imitation_1/audio_data.wav'
+    # playsound.playsound(audio_file, False)
+    audio_samplerate, audio_data = wavfile.read(audio_file)
+
+    # get normalization values using the initial values as reference. Averaging over initial 10 samples for robustness
+    # initial_values = np.expand_dims(np.array([float(i) for i in emg_recording[7].split(', ')[1:9]]), axis=-1)
+    initial_values = [emg_recording[k].split(', ')[1:9] for k in range(7, 17)]
+    initial_values = [list(map(float, sample)) for sample in initial_values]
+    initial_values = np.expand_dims(np.mean(np.array(initial_values), axis=0), axis=-1)
+
+    processed_channel_data = [emg_recording[k].split(',')[1:9] for k in range(7,len(emg_recording)-1)]
+    processed_channel_data = np.array(processed_channel_data).T.astype(np.float32)
+    processed_channel_data = transform_data(processed_channel_data, sample_rate, initial_values)
+    processed_channel_data = np.array(processed_channel_data)
+
+    min_val, max_val = np.percentile(processed_channel_data, 0.5), np.percentile(processed_channel_data, 99.5)
+    audio_min_val, audio_max_val = np.percentile(audio_data, 0.5), np.percentile(audio_data, 99.5)
+
+    processed_time_stamps = [emg_recording[k].split(', ')[-1] for k in range(7, len(emg_recording)-1)]
+    processed_time_stamps =[datetime.strptime(time_stamp, '%H:%M:%S.%f') for time_stamp in processed_time_stamps]
+    processed_time_stamps = [(time_stamp-start_time).total_seconds() for time_stamp in processed_time_stamps]
+
+    # with st.empty():
+
+    for i in range(6+time_window, len(emg_recording)-time_window, steps):
+        # time_stamps = [emg_recording[k].split(', ')[-1] for k in range(i-time_window, i+time_window)]
+        # time_stamps =[datetime.strptime(time_stamp, '%H:%M:%S.%f') for time_stamp in time_stamps]
+        # time_stamps = [(time_stamp-start_time).total_seconds() for time_stamp in time_stamps]
+        # channel_data = [emg_recording[k].split(',')[1:9] for k in range(i-time_window, i+time_window)]
+        # channel_data = np.array(channel_data).T.astype(np.float32)
+
+        # print(np.array(channel_data)[:, 0])
+        # channel_data = transform_data(channel_data, sample_rate, initial_values)
+        # print(np.array(channel_data)[:, 0])
+
+        channel_data = processed_channel_data[:, i-time_window:i+time_window]
+        time_stamps = processed_time_stamps[i-time_window:i+time_window]
 
         approx_timestamps = np.linspace(
             time_stamps[0],
             time_stamps[-1],
             2*time_window) # for graph smoothing
 
-        fig, ax = plt.subplots()
-        fig.figimage(electrode_placement_img, 900, 700)
-        suptitle = "Subject: "+subject_id+", Task: "+task+", Attempt: "+attempt
-        plt.suptitle(suptitle)
-
         # Set common labels
+        suptitle = "Subject: "+subject_id+", Task: "+task+", Attempt: "+attempt
+        fig.suptitle(suptitle)
         fig.text(0.5, 0.03, 'Time since start (s)', ha='center', va='center')
         fig.text(0.03, 0.5, u'Signal (\u03bcV)', ha='center', va='center', rotation='vertical')
 
         for j in range(len(channel_data)): # channel
-            plt.plot(approx_timestamps, channel_data[j], c=colors[j], alpha=1.0, lw=1.0, label=str(j))
+            ax[0].plot(approx_timestamps, channel_data[j], c=colors[j], alpha=1.0, lw=1.0, label=str(j))
 
-        plt.ylim([-200, 200])
+        # plot the audio data
+        audio_time_window_start = int(audio_samplerate/sample_rate*(i-time_window))
+        audio_time_window_end = int(audio_samplerate/sample_rate*(i+time_window))
+        audio_samples =  audio_data[audio_time_window_start:audio_time_window_end]
+        ax[1].plot(audio_samples)
+
+
+        ax[0].set_ylim([min_val, max_val])
+        ax[1].set_ylim([audio_min_val, audio_max_val])
+
+        ax[0].set_title("EMG data")
+        ax[1].set_title("Audio data")
+        plt.tight_layout()
         fig.canvas.draw()
         fig.canvas.flush_events()
-        time.sleep(0.1)
-
+        plt.show()
+        # time.sleep(steps/sample_rate)
+        ax[0].cla()
+        ax[1].cla()
 
 def extract_data_per_task(subject_id, task_metadata, emg_folder, annotation_folder,  time_delta_mac_surface, experiment_start_times_surface):
 
@@ -251,7 +306,7 @@ def extract_data_per_task(subject_id, task_metadata, emg_folder, annotation_fold
         stream_data(subject_id, task, emg_file, annotation_textgrid, label_names, attempt_str)
 
 
-def extract_data(args):
+def stream(args):
     print("Extracting data for the subject", args.subject_id)
 
     metadata_file = open(args.metadata, 'r')
@@ -284,6 +339,7 @@ def extract_data(args):
                     experiment_start_times_surface)
 
     for task_metadata in tasks_metadata:
-        extract_data_per_task(args.subject_id, task_metadata, emg_folder, annotation_folder, time_delta_mac_surface, experiment_start_times_surface)
+        if task_metadata['name'] == args.task:
+            extract_data_per_task(args.subject_id, task_metadata, emg_folder, annotation_folder, time_delta_mac_surface, experiment_start_times_surface)
 
 
