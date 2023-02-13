@@ -100,6 +100,52 @@
             }
         },
 
+        "ASD004":
+        {
+            "tasks": [
+                    {
+                        "name": "imitation",
+                        "emg": [
+                            "OpenBCI-RAW-2022-10-21_11-13-24.txt"
+                        ],
+                        "textgrids":[
+                            "Imitation_1_subj_CPPG-ASD-004.textgrid",
+                            "Imitation_2_subj_CPPG-ASD-004.textgrid",
+                            "Imitation_3_subj_CPPG-ASD-004.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "naming",
+                        "emg": [
+                            "OpenBCI-RAW-2022-10-21_11-22-15.txt"
+                        ],
+                        "textgrids":[
+                            "Naming_1_subj_CPPG-ASD-004.textgrid",
+                            "Naming_2_subj_CPPG-ASD-004.textgrid",
+                            "Naming_3_subj_CPPG-ASD-004.textgrid"
+                        ]
+                    },
+                    {
+                        "name": "reading",
+                        "emg": [
+                            "Reading_1_subj_CPPG-ASD-004.txt",
+                            "Reading_2_subj_CPPG-ASD-004.txt"
+                        ],
+                        "textgrids":[
+                            "Reading_1_subj_CPPG-ASD-004.textgrid",
+                            "Reading_1_subj_CPPG-ASD-004.textgrid"
+                        ]
+                    }
+                ],
+            "calibration": {
+                "beep_text_grid_file_mac": "calibration_tone.textgrid",
+                "beep_text_grid_file_surface": "ddk_1.textgrid",
+                "experiment_start_times_surface": "data_times.txt",
+                "meta_file": "meta.txt",
+                "audio_name": "101_1"
+            }
+        },
+
         "ASD005":
         {
             "tasks": [

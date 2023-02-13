@@ -29,8 +29,10 @@ def parse_beep_textgrid(beep_text_grid_file_mac,
     for s in calibration_missing_subjects:
         if s in meta_file:
             if s == 'ASD005':
-                time_delta_mac_surface = timedelta(hours=3, minutes=5, seconds=40, microseconds=382775) # a candidate
+                # time_delta_mac_surface = timedelta(hours=3, minutes=5, seconds=40, microseconds=382775) # a candidate
+                time_delta_mac_surface = timedelta(hours=3, minutes=5, seconds=41, microseconds=382775) # a candidate
             if s == 'ASD006':
+                # time_delta_mac_surface = timedelta(hours=3, minutes=6, seconds=20, microseconds=382775) # a candidate
                 time_delta_mac_surface = timedelta(hours=3, minutes=6, seconds=20, microseconds=382775) # a candidate
             print("Using default time difference:",time_delta_mac_surface)
             return time_delta_mac_surface

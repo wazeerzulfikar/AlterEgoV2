@@ -28,6 +28,52 @@ step = 50
 
 sample_count = 0
 recorded_count = 0
+
+def transform_data(sequence_groups, sample_rate=250):
+
+    #### Apply DC offset and drift correction
+    drift_low_freq = 0.5 #0.5
+    sequence_groups = transforms.subtract_initial(sequence_groups)
+    sequence_groups = transforms.highpass_filter(sequence_groups, drift_low_freq, sample_rate)
+    # sequence_groups = transforms.subtract_mean(sequence_groups)
+
+    #### Apply notch filters at multiples of notch_freq, for the power line noise
+    notch_freq = 60
+    num_times = 3 #pretty much just the filter order
+    freqs = np.round(np.arange(1, sample_rate/(2. * notch_freq)) * notch_freq).astype(np.int32)
+    for _ in range(num_times):
+        for f in reversed(freqs):
+            sequence_groups = transforms.notch_filter(sequence_groups, f, sample_rate)
+
+    #### Apply standard deviation normalization
+    # sequence_groups = transforms.normalize_std(sequence_groups)
+
+    def normalize_kernel(kernel, subtract_mean=False):
+        if subtract_mean:
+            kernel = np.array(kernel, np.float32) - np.mean(kernel)
+        return np.array(kernel, np.float32) / np.sum(np.abs(kernel))
+    def ricker_function(t, sigma):
+        return 2./(np.sqrt(3*sigma)*np.pi**0.25)*(1.-(float(t)/sigma)**2)*np.exp(-(float(t)**2)/(2*sigma**2))
+    def ricker_wavelet(n, sigma):
+        f = lambda x: ricker_function(x, sigma)
+        return np.array([f(i) for i in range(-n//2, n//2+1)])
+
+    #### Apply ricker wavelet subtraction
+    ricker_width = 35 * sample_rate // 250
+    ricker_sigma = 4.0 * sample_rate / 250
+    ricker_kernel = normalize_kernel(ricker_wavelet(ricker_width, ricker_sigma))
+    ricker_convolved = transforms.correlate(sequence_groups, ricker_kernel)
+    ricker_subtraction_multiplier = 2.0
+
+    sequence_groups = np.array(sequence_groups) - np.array(ricker_subtraction_multiplier) * ricker_convolved
+
+    low_freq = 0.5 #0.5
+    high_freq = 4 #8
+    order = 1
+
+    #### Apply soft bandpassing
+    sequence_groups = transforms.bandpass_filter(sequence_groups, low_freq, high_freq, sample_rate, order=order)
+    return sequence_groups
     
 def start(device_name, callback_fn, channels=range(0, 8), history_size=history_size, shown_size=shown_size,
           transform_fn=transforms.default_transform, plot=True, return_transformed=True,
@@ -158,9 +204,13 @@ def start(device_name, callback_fn, channels=range(0, 8), history_size=history_s
                 #     print('Failure! Communications timout. Device failed to poll host')
                 #     exit()
 
-            data = np.array(history)
+            data = np.array(history) # data is shape (1500, 8)
+            data = data.T
+
+            transformed = transform_data(data, **kwargs)
+            transformed = np.array(transformed).T
         
-            transformed = transform_fn(data, **kwargs)
+            # transformed = transform_fn(data, **kwargs)
             if plot:
                 print("start1")
                 max_vals = [5 * np.std(transformed[-shown_size:,i], axis=0) for i in range(8)]

@@ -21,6 +21,8 @@ opj = os.path.join
 
 #### Preprocessing
 def transform_data(sequence_groups, sample_rate=250):
+    print("Shape of data coming in ",sequence_groups.shape)
+    # Needs (channels, Values)
 
     #### Apply DC offset and drift correction
     drift_low_freq = 0.5 #0.5
